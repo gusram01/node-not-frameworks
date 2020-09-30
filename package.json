@@ -1,0 +1,25 @@
+{
+  "name": "first",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Gus Ramírez",
+  "license": "MIT",
+  "scripts": {
+    "dev": "tsnd src/server",
+    "build": "tsc",
+    "start": "node server/server"
+  },
+  "dependencies": {
+    "@types/node": "^14.11.2"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.3.0",
+    "@typescript-eslint/parser": "^4.3.0",
+    "eslint": "^7.2.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.1",
+    "ts-node": "^9.0.0",
+    "ts-node-dev": "^1.0.0-pre.63",
+    "typescript": "^4.0.3"
+  }
+}

@@ -1,30 +1,22 @@
-import https from 'https';
+import https, { RequestOptions } from 'https';
 import Stream from 'stream';
-import fs from 'fs';
 import path from 'path';
+import fs from 'fs';
+import { today } from './getDate/date';
 
-const apiKey = 'ynyBvk4VmMD0BDBE0Ia8DAzNAkroJrsqxUiYyuRr';
-const uri = `https://api.nasa.gov/planetary/apod?api_key=${apiKey}&date=2020-09-25`;
-const imageDir = path.resolve(__dirname, '..', 'public');
-const filename = imageDir + '/nasa-pod.jpg';
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+
 const stream = Stream.Transform;
+const imageDir = path.resolve(__dirname, '..', 'public');
+const filename = `${imageDir}/nasa-pod.jpg`;
 
-let image = '';
-
-// const sendImage = () => {
-//   let pix: Buffer | undefined;
-//   fs.access(filename, fs.constants.F_OK, (err) => {
-//     console.log(`${filename} ${err ? 'does not exists' : 'exists'}`);
-//   });
-//   fs.readFile(filename, (err, content) => {
-//     if (err) {
-//       return (pix = undefined);
-//     } else {
-//       return (pix = content);
-//     }
-//   });
-//   return pix;
-// };
+const options: RequestOptions = {
+  hostname: 'api.nasa.gov',
+  path: `/planetary/apod?api_key=${process.env.NASA_APIKEY}&date=${today}`,
+  method: 'GET',
+};
 
 const saveImage = (imageUrl: string) => {
   https.get(imageUrl, (response) => {
@@ -43,18 +35,17 @@ const saveImage = (imageUrl: string) => {
   });
 };
 
-const getImage = https.get(uri, (response) => {
+const reqImage = https.request(options, (res) => {
   let data = '';
-  response.on('data', (chunk) => {
+
+  res.on('data', (chunk) => {
     data += chunk;
   });
-  response.on('end', () => {
+
+  res.on('end', () => {
     const some = JSON.parse(data);
-    image = some.hdurl;
-    saveImage(image);
+    saveImage(some.hdurl);
   });
 });
 
-getImage.on('error', (err) => console.log(err));
-
-export { image };
+export default reqImage;

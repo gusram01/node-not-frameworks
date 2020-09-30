@@ -1,39 +1,49 @@
-import { ServerResponse } from 'http';
-import { image } from './nasa';
+import { IncomingMessage, ServerResponse } from 'http';
+import fs from 'fs';
+import path from 'path';
 
-const routes = (pathName: string, res: ServerResponse) => {
-  const data = {
-    ok: true,
-    data: {
-      user: 'gus',
-      token: 'bearer Token',
-    },
-  };
+interface Routes {
+  [key: string]: (req: IncomingMessage, res: ServerResponse) => void;
+}
 
-  res.setHeader('Content-Type', 'text/html');
-
-  switch (pathName) {
-    case '/':
-      res.statusCode = 200;
-      res.write('<h1>Hello World</h1>');
-
-      break;
-    case '/json':
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.write(JSON.stringify(data));
-
-      break;
-    case '/nasa-pod':
-      res.statusCode = 200;
-      res.write(`<img src=${image} width="800px"/>`);
-
-      break;
-    default:
-      res.statusCode = 404;
-      res.write('<h1>Page not found</h1>');
-  }
-  res.end();
+const data = {
+  ok: true,
+  data: {
+    user: 'gus',
+    token: 'bearer Token',
+  },
 };
 
-export default routes;
+const routes: Routes = {
+  '/hello': (req: IncomingMessage, res: ServerResponse) => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/html');
+    res.write('<h1>Hello World</h1>');
+    res.end();
+  },
+
+  '/json': (req: IncomingMessage, res: ServerResponse) => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.write(JSON.stringify(data));
+    res.end();
+  },
+
+  '/nasa-pod': (req: IncomingMessage, res: ServerResponse) => {
+    const imageDir = path.resolve(__dirname, '..', 'public');
+    res.setHeader('Content-Type', 'text/html');
+
+    fs.readFile(`${imageDir}/index.html`, (err, data) => {
+      if (err) {
+        res.statusCode = 404;
+        res.write(`<h1> Pic was not found </h1>`);
+        res.end();
+      } else {
+        res.statusCode = 200;
+        res.end(data);
+      }
+    });
+  },
+};
+
+export { routes };

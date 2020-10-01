@@ -11,6 +11,7 @@ if (process.env.NODE_ENV !== 'production') {
 const stream = Stream.Transform;
 const imageDir = path.resolve(__dirname, '..', 'public');
 const filename = `${imageDir}/nasa-pod.jpg`;
+const fileError = `${imageDir}/error.jpg`;
 
 const options: RequestOptions = {
   hostname: 'api.nasa.gov',
@@ -37,15 +38,19 @@ const saveImage = (imageUrl: string) => {
 
 const reqImage = https.request(options, (res) => {
   let data = '';
+  if (res.statusCode && res.statusCode >= 400) {
+    fs.copyFile(fileError, filename, () => console.log('show img by cb'));
+    res.on('end', () => console.log('show stored image'));
+  } else {
+    res.on('data', (chunk) => {
+      data += chunk;
+    });
 
-  res.on('data', (chunk) => {
-    data += chunk;
-  });
-
-  res.on('end', () => {
-    const some = JSON.parse(data);
-    saveImage(some.hdurl);
-  });
+    res.on('end', () => {
+      const some = JSON.parse(data);
+      saveImage(some.hdurl);
+    });
+  }
 });
 
 export default reqImage;

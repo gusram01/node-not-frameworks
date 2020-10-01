@@ -6,17 +6,9 @@ import nodeStatic from 'node-static';
 const init = (req: IncomingMessage, res: ServerResponse) => {
   const parseUrl = url.parse(req.url || '/404', true);
   const path = parseUrl.path as string;
-  const limitPath =
-    path === '/hello' ||
-    path === '/json' ||
-    path === '/nasa-pod' ||
-    path === '/404'
-      ? true
-      : false;
-
+  const limitPath = Object.keys(routes).includes(path);
   const file = new nodeStatic.Server('./public');
 
-  console.log(parseUrl);
   req.on('data', () => console.log('hey'));
   req.addListener('end', () => {
     if (!limitPath) {

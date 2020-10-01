@@ -7,7 +7,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 const port = process.env.LOCAL_PORT || 3000;
 
-reqImage.on('error', (err) => console.log(err));
+reqImage.on('error', (err) => {});
 reqImage.end();
 
 server.listen(port, () => {
